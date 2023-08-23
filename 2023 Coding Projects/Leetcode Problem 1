@@ -1,0 +1,32 @@
+Problem:
+Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.
+
+You may assume that each input would have exactly one solution, and you may not use the same element twice.
+
+You can return the answer in any order.
+
+Constraints:
+
+    2 <= nums.length <= 104
+    -109 <= nums[i] <= 109
+    -109 <= target <= 109
+    Only one valid answer exists.
+
+My Solution:
+class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        int[] answer = {0,1};                           //set up answer array
+        if(nums[0]+nums[1] == target) return answer;    //check for 0,1 answers
+        for(int i=0;i<nums.length;i++){                 //for loop to go through each num in nums
+            int test = target-nums[i];                  //test is the number we are looking for
+            for(int j=i+1;j<nums.length;j++){           //for loop to go through the rest of the nums
+                if(test == nums[j]){                    //if to test if we find the number we are looking for
+                    answer[0] = i;                      //success = return answer
+                    answer[1] = j;
+                    return answer;
+                }
+            }
+        }
+        return answer;
+    }
+}
