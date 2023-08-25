@@ -1,0 +1,49 @@
+Problem: 
+Given two sorted arrays nums1 and nums2 of size m and n respectively, return the median of the two sorted arrays.
+
+The overall run time complexity should be 0(log(m+n)).
+
+Constraints:
+
+    nums1.length == m
+    nums2.length == n
+    0 <= m <= 1000
+    0 <= n <= 1000
+    1 <= m + n <= 2000
+    -10^6 <= nums1[i], nums2[i] <= 10^6
+
+My Solution:
+class Solution {
+    public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+        int m = nums1.length, n = nums2.length;  //establish m and n
+        int[] merged = new int[m+n];               //establish merged array
+
+        //Loop that stops when merged array is the same size as m+n
+        for(int i=0, j=0, k=0;k<m+n;k++){          
+            if(n==j){                            //Check if nums2 is out of bounds
+                merged[k] = nums1[i];
+                i++;
+                continue;
+            }
+            if(m==i){                            //Check if nums1 is out of bounds
+                merged[k] = nums2[j];
+                j++;
+                continue;
+            }
+            if(nums1[i]<=nums2[j]){              //Check if the current # in nums1
+                merged[k] = nums1[i];            //is less than current # in nums2
+                i++;                             //True = Put nums1 into merged
+            } else{
+                merged[k] = nums2[j];            //False = Put nums2 into merged
+                j++;
+            }
+        }
+        if(merged.length%2 == 1)                    //Odd length = 1 median
+            return merged[(merged.length/2)];
+        else{                                       //Even length = 2 medians
+            double a = merged[(merged.length/2)-1]; //Put into double vars b/c 
+            double b = merged[merged.length/2];     //they were ints
+            return (a+b)/2;
+        }
+    }
+}
