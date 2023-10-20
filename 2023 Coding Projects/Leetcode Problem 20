@@ -1,0 +1,66 @@
+/*
+Problem:
+Given a string s containing just the characters '(', ')', '{', '}', '[', and ']', determine if the input string is valid.
+
+An input string is valid if:
+
+1. Open brackets must be closed by the same type of brackets.
+2. Open brackets must be closed in the correct order.
+3. Every close bracket has a corresponding open bracket of the same type.
+
+Constraints:
+
+    1 <= s.length <= 10^4
+    s consists of parentheses only '()[]{}'.
+
+My Solution: */
+class Solution {
+    public boolean isValid(String s) {
+        //Create an array to hold the open brackets
+        char[] arr = new char[s.length()];
+        //for loop to manage going through the string
+        int i=0, j=0;   //arr uses i, s uses j
+        for(;j<s.length();j++){
+            try{    //try statement to catch any out of bounds errors
+                switch (s.charAt(j)){
+                    case '(':
+                    case '{':       //Cases to add open brackets to arr
+                    case '[':
+                        arr[i] = s.charAt(j);
+                        i++;        
+                        break;
+                    //Cases to check if closing brackets match opening brackets
+                    case ')':           
+                        if(arr[i-1] == '('){
+                            i--;                //If match, go back 1 in arr
+                            arr[i] = '\u0000';  //and remove from arr
+                            break;
+                        }
+                        else return false;      //No match = false
+
+                    case '}':    
+                        if(arr[i-1] == '{'){
+                            i--;
+                            arr[i] = '\u0000';
+                            break;
+                        }
+                        else return false;
+
+                    case ']':
+                        if(arr[i-1] == '['){
+                            i--;
+                            arr[i] = '\u0000';
+                            break;
+                        }
+                        else return false;
+                }
+            } //Out of bounds = invalid brackets
+            catch(ArrayIndexOutOfBoundsException e){
+                return false;
+            }
+        } //If arr is not empty = invalid brackets
+        if(arr[0] != '\u0000')
+            return false;
+        return true;        //All tests passed = valid brackets
+    }
+}
