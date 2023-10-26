@@ -2,7 +2,7 @@
  course: CSC189
  project: Hw 02
  date: 
- author: (your name)
+ author: Christopher Ball
  purpose: This program reads a length in (km, m, cm, mm) and 
         converts it to (miles, yards, feet, inches)
  */
