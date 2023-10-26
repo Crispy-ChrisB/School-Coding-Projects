@@ -81,7 +81,7 @@ public class Hw06 {
         else if(n2==n1+1 && n3==n2+1 && n4==n3+1 && n5==n4+1) rank = ("Straight("+n5+")");
         else if(n1==1 && n3==n2+1 && n4==n3+1 && n4==n5-1 && n5==13)rank = ("Straight("+n1+")");
         //high card
-        else if(n1==1) rank = ("High Card("+n1+")");
+        //else if(n1==1) rank = ("High Card("+n1+")");
         else rank = ("High Card("+n5+")");
         
         System.out.println(rank);
