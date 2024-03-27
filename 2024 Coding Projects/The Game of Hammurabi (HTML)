@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head> 
+<title>The Game of Hammurabi -- Programmed By: Christopher Ball</title>
+<script>
+/*
+Save for later:
+	document.getElementById("land").disabled = 1;
+	document.getElementById("food").disabled = 0;
+	document.getElementById("plant").disabled = 1;
+
+Ideas:
+	~ Alternate endings (retirement, mutiny: exiled, executed)
+		~ Counter for people starved
+		~ End food determines how wealthy you are when retire
+*/
+
+// Year Counter and Other counters
+let year = 1;
+let food = 2800;
+let people = 100;
+let land = 1000;
+let landRequest;
+let foodRequest;
+let plantRequest;
+let landPrices;
+let peopleSurviving;
+let peopleStarved = 0;
+
+function start(){
+	document.getElementById("btn").setAttribute("onClick", "chance()");
+	document.getElementById("btn").value = "Submit";
+	updateCounters();
+	document.getElementById("land").disabled = 0;
+	document.getElementById("buySell").disabled = 0;
+	chance();
+}
+
+// Update land, people, food counters
+function updateCounters() {
+	document.getElementById("year").innerHTML = year;
+	document.getElementById("currentLand").innerHTML = land;
+	document.getElementById("currentPeople").innerHTML = people;
+	document.getElementById("currentFood").innerHTML = food;
+}
+
+// Generate Randomness
+function getRandInt(min, max) {
+	let minCeiled = Math.ceil(min);
+	let maxFloored = Math.floor(max);
+	return Math.floor(Math.random() * (maxFloored - minCeiled + 1) + minCeiled);
+}
+
+
+// Let the games begin!
+function chance() {
+	if(document.getElementById("land").disabled == 0)
+		landFunc();
+	else if(document.getElementById("food").disabled == 0)
+		foodFunc();
+	else if(document.getElementById("plant").disabled == 0)
+		plantFunc();
+	else {
+		document.getElementById("output").innerText = "Grain has been distributed and sown into soil.";
+		
+		// Rats? Rats make me crazy.
+		let fate = getRandInt(1,10);
+		if(fate >= 1 && fate <= 2){
+			document.getElementById("output").innerText += "\nRats have eaten half of your stored grain!";
+			food = Math.floor(food/2);
+		}
+		if(fate >= 8 && fate <= 10){
+			document.getElementById("output").innerText += "\nRats have eaten a quarter of your stored grain!";
+			food = Math.floor(food * 3/4);
+		}
+		updateCounters();
+		
+		// The harvest
+		fate = getRandInt(1,5);
+		food += plantRequest * fate;
+		document.getElementById("output").innerText += "\nThe harvest has yielded " + (plantRequest * fate) + " bushels of grain.";
+		updateCounters();
+		
+		// End of the Year
+		if((people * 0.55) > peopleSurviving){
+			document.getElementById("output").innerText += "\nOnly " + peopleSurviving + " people survived. You are deposed. Game Over!";
+			document.getElementById("land").disabled = 1;
+			document.getElementById("food").disabled = 1;
+			document.getElementById("plant").disabled = 1;
+			document.getElementById("btn").disabled = 1;
+			document.getElementById("buySell").disabled = 1;
+			people = peopleSurviving;
+			updateCounters();
+			return;
+		}
+		people = peopleSurviving;
+		document.getElementById("output").innerText += "\nThis year, " + people + " people survived.";
+		
+		// Immigrants!
+		let immigration = Math.floor((getRandInt(1,5) * (20*land+food) / (people*100) + 1));
+		document.getElementById("output").innerText += "\n" + immigration + " people have immigrated into your kingdom!";
+		people += immigration;
+		
+		// Plague?! D:
+		fate = getRandInt(1,100);
+		if((fate >= 3 && fate <= 7) || (fate >= 27 && fate <= 31) || (fate >= 81 && fate <= 85)){
+			document.getElementById("output").innerText += "\nA plague has struck your kingdom! Half of the people have died.";
+			people = Math.floor(people/2);
+		}
+		updateCounters();
+		
+		// Retirement?
+		if(year == 10){
+			document.getElementById("btn").disabled = 1;
+			document.getElementById("output").innerText += "\n______________________________________";
+			document.getElementById("output").innerText += "\nYour reign has come to a peaceful end.";
+			document.getElementById("output").innerText += "\nYou ended with: "
+			document.getElementById("output").innerText += "\n" + people + " people in your kingdom.";
+			document.getElementById("output").innerText += "\n" + land + " acres of land.";
+			document.getElementById("output").innerText += "\n" + food + " bushels of grain in storage.";
+			return;
+		} else {
+			year++;
+			document.getElementById("btn").setAttribute("onClick", "start()");
+			document.getElementById("btn").value = "Start";
+			document.getElementById("land").value = "0";
+			document.getElementById("food").value = "0";
+			document.getElementById("plant").value = "0";
+		}
+		
+	}
+}
+
+function landFunc() {
+	document.getElementById("btn").setAttribute("onClick", "submitChoice()");
+	landPrices = getRandInt(17,26);
+	document.getElementById("output").innerHTML = "Current land prices are " + landPrices + " bushels per acre. \nHow much land do you want to buy or sell?";
+}
+
+function foodFunc() {
+	document.getElementById("output").innerHTML = "Each person needs 20 bushels of grain to survive the year. \nHow much grain are you going to feed the people?";
+}
+
+function plantFunc() {
+	document.getElementById("output").innerHTML = "Each acre needs half a bushel of grain and each person can tend 10 acres. \nHow many acres of land do you want to plant?";
+}
+
+function submitChoice() {
+	if(document.getElementById("land").disabled == 0){
+		landRequest = parseInt(document.getElementById("land").value);
+		if(document.getElementById("buySell").value == "buy"){
+			if((landRequest * landPrices) <= food && (land + landRequest) >= 0){
+				land += landRequest;
+				food -= (landRequest * landPrices);
+				updateCounters();
+				document.getElementById("land").disabled = 1;
+				document.getElementById("buySell").disabled = 1;
+				document.getElementById("food").disabled = 0;
+				chance();
+			}
+			else {
+				window.alert("You cannot afford this!");
+			}
+		}
+		else {
+			if((land - landRequest) >= 0 && (food + (landRequest * landPrices)) >= 0){
+				land -= landRequest;
+				food += (landRequest * landPrices);
+				updateCounters();
+				document.getElementById("land").disabled = 1;
+				document.getElementById("buySell").disabled = 1;
+				document.getElementById("food").disabled = 0;
+				chance();
+			}
+			else
+				window.alert("You cannot afford this!");
+		}
+	}
+	else if(document.getElementById("food").disabled == 0){
+		if(document.getElementById("food").value == "e" || document.getElementById("food").value == ""){
+			window.alert("Enter a valid number!");
+		}
+		else{
+			foodRequest = parseFloat(document.getElementById("food").value);
+			if(foodRequest < 0)
+				window.alert("You cannot take food from the people!");
+			else if(foodRequest > food)
+					window.alert("You cannot afford to give this much food!");
+			else {
+				food -= foodRequest;
+				peopleSurviving = Math.floor(foodRequest/20);
+				if(peopleSurviving > people)
+					peopleSurviving = people;
+				else peopleStarved += people - peopleSurviving;
+				updateCounters();
+				document.getElementById("food").disabled = 1;
+				document.getElementById("plant").disabled = 0;
+				chance();
+			}
+		}
+	}
+	else {
+		if(document.getElementById("plant").value == "e" || document.getElementById("plant").value == ""){
+			window.alert("Enter a valid number!");
+		}
+		else{
+			plantRequest = parseInt(document.getElementById("plant").value);
+			if(plantRequest < 0)
+				window.alert("You cannot unsow the land you haven't yet sown!");
+			else if(plantRequest > land || (plantRequest * 0.5) > food || plantRequest > (people * 10))
+					window.alert("You do not have the resources to sow this much land!");
+			else {
+				document.getElementById("plant").disabled = 1;
+				food -= (plantRequest * 0.5);
+				updateCounters();
+				chance();
+			}
+		}
+	}
+}
+
+</script>
+</head>
+<body style="background-color:#CBC3E3">
+<p><b>Rules of Hammurabi:
+	<br>1st - Buy/Sell Land
+	<br>2nd - Feed Your People
+	<br>3rd - Plant Grain
+	<br><span style="color:red">If more than 45% of the population starves in one year -- GAME OVER</span></b></p>
+	
+<form>
+<p>	<select name="buySell" id="buySell" disabled>
+		<option value="buy">Buy</option>
+		<option value="sell">Sell</option>
+	</select><br>
+	Land: <input type="number" name="land" id="land" value="0" style="width:100px" disabled>
+	<b> Current Land Owned (acres): <span name="currentLand" id="currentLand" style="bold"></span></b>
+	<br>Food:  <input type="number" name="food" id="food" value="0" style="width:100px" disabled>
+	<b> Current Grain Bushels: <span name="currentFood" id="currentFood" style="bold"></span></b>
+	<br>Plant: <input type="number" name="plant" id="plant" value="0" style="width:100px" disabled>
+	<b> Current Population: <span name="currentPeople" id="currentPeople" ></span></b>
+	<br><br><input type="button" value="Start" id="btn" onClick="start()" style="width:150px">
+</p>
+<p>Current Year: <name="year" id="year" /p>
+<pre name="output" id="output"></pre>
+
+</form>
+</body>
+</html>
