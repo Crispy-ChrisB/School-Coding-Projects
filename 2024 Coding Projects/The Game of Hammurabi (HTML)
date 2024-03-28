@@ -12,7 +12,14 @@ Save for later:
 Ideas:
 	~ Alternate endings (retirement, mutiny: exiled, executed)
 		~ Counter for people starved
+			~ 60% of total people starved --> executed
+			~ 35% of total people starved --> exiled
+			~ 0% < people starved < 35%   --> shamed
+			~ 0% Starved                  --> Very good ending
+				~ Food Supply >= People * 20 * 1.5 --> Perfect ending
+				~ Food Supply <= People * 20 * 1.5 --> Good ending
 		~ End food determines how wealthy you are when retire
+		~ Plague Ending 
 */
 
 // Year Counter and Other counters
@@ -26,6 +33,9 @@ let plantRequest;
 let landPrices;
 let peopleSurviving;
 let peopleStarved = 0;
+let totalPeople = 100;
+let totalImmigrants = 0;
+let plagueCounter = 0;
 
 function start(){
 	document.getElementById("btn").setAttribute("onClick", "chance()");
@@ -68,10 +78,12 @@ function chance() {
 		if(fate >= 1 && fate <= 2){
 			document.getElementById("output").innerText += "\nRats have eaten half of your stored grain!";
 			food = Math.floor(food/2);
+			plagueCounter++;
 		}
 		if(fate >= 8 && fate <= 10){
 			document.getElementById("output").innerText += "\nRats have eaten a quarter of your stored grain!";
 			food = Math.floor(food * 3/4);
+			plagueCounter++;
 		}
 		updateCounters();
 		
@@ -100,6 +112,8 @@ function chance() {
 		let immigration = Math.floor((getRandInt(1,5) * (20*land+food) / (people*100) + 1));
 		document.getElementById("output").innerText += "\n" + immigration + " people have immigrated into your kingdom!";
 		people += immigration;
+		totalPeople += immigration;
+		totalImmigrants += immigration;
 		
 		// Plague?! D:
 		fate = getRandInt(1,100);
@@ -113,11 +127,41 @@ function chance() {
 		if(year == 10){
 			document.getElementById("btn").disabled = 1;
 			document.getElementById("output").innerText += "\n______________________________________";
-			document.getElementById("output").innerText += "\nYour reign has come to a peaceful end.";
+			// What kind of ruler were you?
+			if(plagueCounter == 10){
+				document.getElementById("output").innerText += "\nThe people think you are cursed.";
+				document.getElementById("output").innerText += "\nYou were too unlucky.";
+				document.getElementById("output").innerText += "\nThere was an assassination. Your reign ended abruptly.";
+			} else if((peopleStarved * 0.6) >= totalPeople){
+				document.getElementById("output").innerText += "\nYou starved too many people.";
+				document.getElementById("output").innerText += "\nYour reign has come to a violent end.";
+				document.getElementById("output").innerText += "\nThere was a mutiny. You were executed.";
+			} else if((peopleStarved * 0.35) >= totalPeople){
+				document.getElementById("output").innerText += "\nThe people are unhappy with their rations.";
+				document.getElementById("output").innerText += "\nYour reign has come to an unfortunate end.";
+				document.getElementById("output").innerText += "\nThere was a mutiny. You were exiled.";
+			} else if(peopleStarved > 0){
+				document.getElementById("output").innerText += "\nThe people are mostly content with how you ruled.";
+				document.getElementById("output").innerText += "\nYour reign has come to a peaceful end.";
+				document.getElementById("output").innerText += "\nYou step down as king. Only " + peopleStarved + " people were starved.";
+			} else if(food >= (people * 20 * 1.5)){
+				document.getElementById("output").innerText += "\nThe people love you!";
+				document.getElementById("output").innerText += "\nYou reign has come to a beautiful end.";
+				document.getElementById("output").innerText += "\nYou step down as king. You live a hero.";
+			} else {
+				document.getElementById("output").innerText += "\nThe people are very happy with you.";
+				document.getElementById("output").innerText += "\nYour reign has come to a peaceful end.";
+				document.getElementById("output").innerText += "\nYou step down as king. You live a good life";
+			}
+			
+			// General Stats
 			document.getElementById("output").innerText += "\nYou ended with: "
 			document.getElementById("output").innerText += "\n" + people + " people in your kingdom.";
 			document.getElementById("output").innerText += "\n" + land + " acres of land.";
 			document.getElementById("output").innerText += "\n" + food + " bushels of grain in storage.";
+			document.getElementById("output").innerText += "\n" + peopleStarved + " people starved.";
+			document.getElementById("output").innerText += "\n" + totalImmigrants + " people immigrated to your kingdom.";
+			document.getElementById("output").innerText += "\n" + totalPeople + " total people lived in your kingdom.";
 			return;
 		} else {
 			year++;
@@ -146,8 +190,10 @@ function plantFunc() {
 }
 
 function submitChoice() {
+	// Land Submit
 	if(document.getElementById("land").disabled == 0){
 		landRequest = parseInt(document.getElementById("land").value);
+		// Buy or Sell?
 		if(document.getElementById("buySell").value == "buy"){
 			if((landRequest * landPrices) <= food && (land + landRequest) >= 0){
 				land += landRequest;
@@ -175,7 +221,7 @@ function submitChoice() {
 			else
 				window.alert("You cannot afford this!");
 		}
-	}
+	} // Food Submit
 	else if(document.getElementById("food").disabled == 0){
 		if(document.getElementById("food").value == "e" || document.getElementById("food").value == ""){
 			window.alert("Enter a valid number!");
@@ -199,7 +245,7 @@ function submitChoice() {
 			}
 		}
 	}
-	else {
+	else { // Plant Submit
 		if(document.getElementById("plant").value == "e" || document.getElementById("plant").value == ""){
 			window.alert("Enter a valid number!");
 		}
