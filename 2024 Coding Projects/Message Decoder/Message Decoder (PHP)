@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<!--
+Project: Decoding a message from a text file
+Author: Christopher Ball
+Date: 04/18/2024
+** THE HTML USED IN THIS FILE WAS FOR DISPLAY PURPOSES **
+-->
+<head>
+<title>Decode a message from a text file</title>
+</head>
+<body>
+<?php
+$file = "coding_qual_input.txt";
+$handle = fopen($file, "r");
+while(!feof($handle)){
+	$line = fgets($handle);
+}
+fclose($handle);
+
+// Store into array and sort
+$lines = file($file);
+natsort($lines);
+
+// Check if value should be printed or not
+$row = 1;			// Track row number
+$position = 1;		// Track position in array
+$lastPos = 1;
+foreach($lines as $value){
+	// Check if in last position
+	if($position == $lastPos){
+		// Split the String and print the values
+		$parts = explode(" ", $value);
+		$word = end($parts);
+		
+		print $word;
+		
+		// Update counters
+		$row++;
+		$position++;
+		
+		// Know the last position in a row
+		$lastPos = $position + $row - 1;
+		
+		continue;
+	}
+	$position++;
+}
+
+?>
+</body>
+</html>
